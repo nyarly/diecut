@@ -1,0 +1,36 @@
+$: << 'lib'
+require 'diecut'
+require 'diecut/mustache'
+
+tmpl = Diecut::Template.new("somewhere", <<EOT)
+I am a {{thing}} with {{ very.deep.values }}.
+{{#sometimes}}I tell secrets {{#lengthy}}at length {{/lengthy}}- also {{sometime}}
+{{/sometimes}}
+{{^sometimes}}I am an open book{{/sometimes}}{{! this is silly }}
+Oh: something else: {{< apartial}}
+This too: {{#nested}}{{< apartial}}{{/nested}}
+EOT
+prtl = Diecut::Template.new("apartial", <<EOT)
+I'm {{status}}
+EOT
+
+tmpl.partial_context(prtl)
+
+tmpl.context.from_hash(
+  thing: "template",
+  very: { deep: { values: "strongly held beliefs" }},
+  sometimes: [
+    { sometime: "stories", lengthy: false },
+    { sometime: "lies", lengthy: true }
+  ],
+  status: "green",
+  nested: { status: "yellow" }
+)
+
+renderer = Diecut::Mustache.new
+renderer.partials_hash = {
+  :somewhere => tmpl,
+  :apartial => prtl
+}
+
+puts tmpl.render(renderer)
