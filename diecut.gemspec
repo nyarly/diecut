@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency("mustache", "> 0")
   spec.add_dependency("calibrate", "> 0")
+  spec.add_dependency("valise", "> 0")
   #spec.add_dependency("", "> 0")
 
   #spec.post_install_message = "Thanks for installing my gem!"

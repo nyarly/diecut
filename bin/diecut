@@ -1,36 +1,17 @@
 $: << 'lib'
-require 'diecut'
-require 'diecut/mustache'
+require 'diecut/mill'
+require 'pp'
 
-tmpl = Diecut::Template.new("somewhere", <<EOT)
-I am a {{thing}} with {{ very.deep.values }}.
-{{#sometimes}}I tell secrets {{#lengthy}}at length {{/lengthy}}- also {{sometime}}
-{{/sometimes}}
-{{^sometimes}}I am an open book{{/sometimes}}{{! this is silly }}
-Oh: something else: {{< apartial}}
-This too: {{#nested}}{{< apartial}}{{/nested}}
-EOT
-prtl = Diecut::Template.new("apartial", <<EOT)
-I'm {{status}}
-EOT
+mill = Diecut::Mill.new("rubygem")
 
-tmpl.partial_context(prtl)
+mill.load_files
+mill.prepare
+pp mill.templates.context.to_hash
+mill.templates.context.gemname = "test-gem"
 
-tmpl.context.from_hash(
-  thing: "template",
-  very: { deep: { values: "strongly held beliefs" }},
-  sometimes: [
-    { sometime: "stories", lengthy: false },
-    { sometime: "lies", lengthy: true }
-  ],
-  status: "green",
-  nested: { status: "yellow" }
-)
-
-renderer = Diecut::Mustache.new
-renderer.partials_hash = {
-  :somewhere => tmpl,
-  :apartial => prtl
-}
-
-puts tmpl.render(renderer)
+mill.results do |path, contents|
+  puts "Begin: #{path}:"
+  puts contents
+  puts "End: #{path}"
+  puts
+end

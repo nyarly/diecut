@@ -4,6 +4,12 @@ PATH
     diecut (0.0.1)
       calibrate (> 0)
       mustache (> 0)
+      valise (> 0)
+
+PATH
+  remote: ~/ruby/gems/valise
+  specs:
+    valise (1.1.4)
 
 GEM
   remote: https://rubygems.org/
@@ -52,7 +58,6 @@ GEM
       json
       simplecov
     tilt (2.0.2)
-    valise (1.1.4)
 
 PLATFORMS
   ruby
@@ -60,6 +65,7 @@ PLATFORMS
 DEPENDENCIES
   corundum
   diecut!
+  valise!
 
 BUNDLED WITH
-   1.10.6
+   1.11.2

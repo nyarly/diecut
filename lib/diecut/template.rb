@@ -35,6 +35,10 @@ module Diecut
       @reduced ||= TemplateReducer.new(Mustache::Parser.new.compile(template_string))
     end
 
+    def partials
+      reduced.partials
+    end
+
     def build_context_class
       klass = Class.new(Configurable)
       TemplateContext.add(path, klass)
