@@ -1,1 +1,5 @@
 *.sw?
+errors.err
+.cadre
+corundum/
+last_run

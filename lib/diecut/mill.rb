@@ -10,10 +10,11 @@ module Diecut
     attr_reader :kind
 
     def valise
-      Valise::Set.define do
+      @valise ||= Valise::Set.define do
         ro "~/.config/diecut"
       end
     end
+    attr_writer :valise
 
     # XXX This would be nice, but needs plugins to work well
     def kinds
