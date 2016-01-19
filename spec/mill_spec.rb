@@ -2,7 +2,7 @@ require 'diecut/mill'
 
 describe Diecut::Mill do
   subject :mill do
-    Diecut::Mill.new("test").tap do |mill|
+    Diecut::Mill.new.tap do |mill|
       mill.valise = valise
     end
   end
@@ -16,7 +16,6 @@ describe Diecut::Mill do
   end
 
   it "should render files" do
-    mill.load_files
     mill.prepare
     mill.templates.context.testing = "checking"
     mill.templates.context.thing = "test file"

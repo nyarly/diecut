@@ -92,7 +92,7 @@ module Diecut
 
     def build_context
       tsort_each do |template|
-        context_class.absorb_context(context_class)
+        context_class.absorb_context(template.context_class)
       end
       @path_templates.each_value do |template|
         context_class.absorb_context(template.context_class)

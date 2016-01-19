@@ -23,7 +23,7 @@ module Diecut
 
     def add_subcontext(nesting, other)
       other.field_names.each do |field|
-        build_setting(context_class, nesting + [field])
+        context_class.build_setting(nesting + [field])
       end
     end
 
@@ -44,31 +44,10 @@ module Diecut
       TemplateContext.add(path, klass)
 
       reduced.leaf_fields.each do |field|
-        build_setting(klass, field)
+        klass.build_setting(field, reduced.sections.include?(field))
       end
       klass
     end
-
-    def build_setting(klass, field)
-      nested = field[0..-2].reduce(klass) do |klass, part|
-        part = part.to_sym
-        nested = klass.field_metadata(part)
-        if nested.nil?
-          nested = Class.new(Configurable)
-          klass.setting(part, nested)
-        else
-          nested = nested.default_value
-        end
-        nested
-      end
-
-      if reduced.sections.include?(field)
-        nested.setting(field.last, Class.new(Configurable))
-      else
-        nested.setting(field.last)
-      end
-    end
-
     def context
       @context ||= context_class.new
     end
