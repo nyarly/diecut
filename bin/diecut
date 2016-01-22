@@ -1,17 +1,10 @@
 $: << 'lib'
-require 'diecut/mill'
-require 'pp'
 
-mill = Diecut::Mill.new("rubygem")
+require 'diecut'
+require 'diecut/cli'
 
-mill.load_files
-mill.prepare
-pp mill.templates.context.to_hash
-mill.templates.context.gemname = "test-gem"
-
-mill.results do |path, contents|
-  puts "Begin: #{path}:"
-  puts contents
-  puts "End: #{path}"
-  puts
+Diecut.load_plugins
+Diecut.kinds.each do |kind|
+  Diecut::CommandLine.add_kind(kind)
 end
+Diecut::CommandLine.start

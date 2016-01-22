@@ -34,6 +34,7 @@ module Diecut
     def context
       @context ||= context_class.new
     end
+    attr_writer :context
 
     def is_partial?(tmpl)
       @partials.has_key?(tmpl.path)
@@ -97,7 +98,6 @@ module Diecut
       @path_templates.each_value do |template|
         context_class.absorb_context(template.context_class)
       end
-      context.setup_defaults
     end
   end
 end

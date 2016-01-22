@@ -2,7 +2,7 @@ require 'diecut/mill'
 
 describe Diecut::Mill do
   subject :mill do
-    Diecut::Mill.new.tap do |mill|
+    Diecut::Mill.new("kind").tap do |mill|
       mill.valise = valise
     end
   end
@@ -15,12 +15,36 @@ describe Diecut::Mill do
     end
   end
 
-  it "should render files" do
-    mill.prepare
-    mill.templates.context.testing = "checking"
-    mill.templates.context.thing = "test file"
+  let :plugin do
+    Diecut::PluginDescription.new('dummy').tap do |plugin|
+      plugin.option('testing') do |opt|
+        opt.goes_to('testing')
+      end
+      plugin.option('thing') do |opt|
+        opt.goes_to(['thing'])
+      end
+    end
+  end
 
-    mill.results do |path, contents|
+  let :other_plugin do
+    Diecut::PluginDescription.new('icky')
+  end
+
+  before :each do
+    mill.mediator.add_plugin(plugin)
+    mill.mediator.add_plugin(other_plugin)
+  end
+
+  it "should render files" do
+    mill.activate_plugins do |name|
+      name == 'dummy'
+    end
+    ui = mill.user_interface
+
+    ui.testing = "checking"
+    ui.thing = "test file"
+
+    mill.churn(ui) do |path, contents|
       expect(path).to eq "checking.txt"
       expect(contents).to eq "I am a test file for checking"
     end

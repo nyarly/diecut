@@ -3,17 +3,46 @@ module Diecut
   class Configurable
     include Calibrate::Configurable
     module ClassMethods
+      attr_accessor :target_name
+
+      def classname
+        name || superclass.name
+      end
+
+      def deep_field_names
+        field_names.map do |name|
+          field_value = field_metadata(name).default_value
+          if field_value.is_a?(Class) and field_value < Diecut::Configurable
+            field_value.deep_field_names.map do |subname|
+              "#{name}.#{subname}"
+            end
+          else
+            name
+          end
+        end.flatten
+      end
+
+      def inspect
+        return "#<#{classname}:#{target_name}:(#{deep_field_names.join(",")})>"
+      end
+
       def absorb_context(from)
         from.field_names.each do |name|
-          from_value = from.field_metadata(name).default_value
+          from_metadata = from.field_metadata(name)
+          from_value = from_metadata.default_value
           into_metadata = field_metadata(name)
+
           if into_metadata.nil?
             if from_value.is_a?(Class) and from_value < Calibrate::Configurable
               nested = Class.new(Configurable)
               setting(name, nested)
               nested.absorb_context(from_value)
             else
-              setting(name, from_value)
+              if from_metadata.is?(:required)
+                setting(name)
+              else
+                setting(name, from_value)
+              end
             end
             next
           end

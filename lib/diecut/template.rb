@@ -1,5 +1,4 @@
 require 'diecut/configurable'
-require 'diecut/template-context'
 require 'diecut/template-reducer'
 
 module Diecut
@@ -41,7 +40,7 @@ module Diecut
 
     def build_context_class
       klass = Class.new(Configurable)
-      TemplateContext.add(path, klass)
+      klass.target_name = path
 
       reduced.leaf_fields.each do |field|
         klass.build_setting(field, reduced.sections.include?(field))

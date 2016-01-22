@@ -66,6 +66,7 @@ describe "Diecut.plugin" do
 
     expect(ui_class.field_names).to contain_exactly(:name_seed, :alive)
     expect(ui_class.required?(:name_seed)).to eq false
+    expect(ui_class.default_for(:name_seed)).to eq "Bruce"
     expect(ui_class.required?(:alive)).to eq true
     expect(ui_class.description(:alive)).to match(/alive\?/)
 

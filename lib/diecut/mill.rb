@@ -1,16 +1,40 @@
 require 'valise'
+require 'diecut'
 require 'diecut/template-set'
 
 module Diecut
   class Mill
-    def initialize
-      @templates = nil
+    def initialize(kind)
+      @kind = kind
     end
+    attr_reader :kind
+    attr_writer :valise, :mediator, :templates
 
-    attr_accessor :valise
+    def mediator
+      @mediator ||= Diecut.mediator(kind)
+    end
 
     def templates
       @templates ||= TemplateSet.new
+    end
+
+    def activate_plugins
+      mediator.plugins.map(&:name).each do |name|
+        if yield(name)
+          mediator.activate(name)
+        else
+          mediator.deactivate(name)
+        end
+      end
+    end
+
+    def valise
+      @valise ||= mediator.activated_plugins.map do |plugin|
+        stem = plugin.stem_for(kind)
+        Valise::Set.define do
+          ro stem.template_dir
+        end.stemmed(stem.stem)
+      end.reduce{|left, right| left + right}.sub_set(kind)
     end
 
     def load_files
@@ -19,13 +43,19 @@ module Diecut
       end
     end
 
-    def prepare
+    def user_interface
       load_files
       templates.prepare
+
+      ui_class = mediator.build_ui_class(templates.context_class)
+      ui_class.new
     end
 
-    def results(&block)
-      templates.results(&block)
+    def churn(ui)
+      templates.context = mediator.apply_user_input(ui, templates.context_class)
+      templates.results do |path, contents|
+        yield(path, contents)
+      end
     end
   end
 end

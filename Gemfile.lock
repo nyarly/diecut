@@ -4,6 +4,7 @@ PATH
     diecut (0.0.1)
       calibrate (> 0)
       mustache (> 0)
+      thor (> 0)
       valise (> 0)
 
 PATH
