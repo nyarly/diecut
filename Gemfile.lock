@@ -7,11 +7,6 @@ PATH
       thor (> 0)
       valise (> 0)
 
-PATH
-  remote: ~/ruby/gems/valise
-  specs:
-    valise (1.2.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -64,6 +59,7 @@ GEM
       simplecov
     thor (0.19.1)
     tilt (2.0.2)
+    valise (1.2.0)
 
 PLATFORMS
   ruby
@@ -72,7 +68,6 @@ DEPENDENCIES
   cadre
   corundum
   diecut!
-  valise!
 
 BUNDLED WITH
    1.11.2
