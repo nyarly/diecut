@@ -2,11 +2,11 @@ PATH
   remote: .
   specs:
     diecut (0.0.1)
-      calibrate (> 0)
-      mustache (> 0)
-      paint (> 0)
-      thor (> 0)
-      valise (> 0)
+      calibrate (~> 0.0.1)
+      mustache (> 1.0)
+      paint (~> 0.8)
+      thor (~> 0.19)
+      valise (~> 1.2)
 
 GEM
   remote: https://rubygems.org/
