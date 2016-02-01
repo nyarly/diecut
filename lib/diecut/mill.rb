@@ -43,11 +43,18 @@ module Diecut
       end
     end
 
+    def context_class
+      templates.context_class
+    end
+
+    def ui_class
+      mediator.build_ui_class(context_class)
+    end
+
     def user_interface
       load_files
       templates.prepare
 
-      ui_class = mediator.build_ui_class(templates.context_class)
       ui_class.new
     end
 

@@ -25,6 +25,7 @@ module Diecut
     method_option :all_on => false
     desc "lint", "Check well-formed-ness of code generators"
     def lint
+      require 'diecut/linter'
       mill = Mill.new(self.class.kind)
       if options["all_on"]
         mill.activate_plugins{ true }
@@ -32,8 +33,7 @@ module Diecut
         mill.activate_plugins {|name| options["with-#{name}"] }
       end
 
-      Linter.new(mill)
-      puts Linter.report
+      puts Linter.new(mill).report
     end
   end
 
@@ -57,9 +57,8 @@ module Diecut
         end
 
         example_ui.field_names.each do |field|
-          puts "\n#{__FILE__}:#{__LINE__} => #{field.inspect}"
           method_option(field, {:for => :generate, :desc => example_ui.description(field) || field,
-            :required => example_ui.required?(field), :default => example_ui.default_for(field)}.tap{|value| puts "#{__FILE__}:#{__LINE__} => #{value.inspect}"})
+            :required => example_ui.required?(field), :default => example_ui.default_for(field)})
         end
       end
 
@@ -69,7 +68,7 @@ module Diecut
     end
 
     def self.add_kind(kind)
-      desc "#{kind}", "Related to templating for #{kind}"
+      desc "#{kind}", "Commands related to templating for #{kind}"
       kind_class = build_kind_subcommand(kind)
       const_set(kind.sub(/\A./){|match| match.upcase }, kind_class)
       subcommand kind, kind_class

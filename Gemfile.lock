@@ -4,16 +4,21 @@ PATH
     diecut (0.0.1)
       calibrate (> 0)
       mustache (> 0)
+      paint (> 0)
       thor (> 0)
       valise (> 0)
 
-GEM
-  remote: https://rubygems.org/
+PATH
+  remote: ~/ruby/gems/cadre
   specs:
     cadre (1.0.2)
       thor (>= 0.14, < 1.0)
       tilt (> 1.0)
       valise (~> 1.1)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
     calibrate (0.0.1)
     caliph (0.3.1)
     corundum (0.6.0)
@@ -59,13 +64,13 @@ GEM
       simplecov
     thor (0.19.1)
     tilt (2.0.2)
-    valise (1.2.0)
+    valise (1.2.1)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  cadre
+  cadre!
   corundum
   diecut!
 

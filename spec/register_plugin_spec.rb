@@ -1,9 +1,14 @@
 require 'diecut'
 
 describe "Diecut.plugin" do
+  let :loader do
+    Diecut::PluginLoader.new.tap do |loader|
+      allow(loader).to receive(:choose_source).and_return("dont/care/where")
+    end
+  end
 
   before :each do
-    Diecut.clear_plugins
+    Diecut.plugin_loader = loader
     Diecut.plugin("test") do |plugin|
       plugin.for_kind("app")
       plugin.default_off

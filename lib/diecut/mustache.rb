@@ -10,5 +10,11 @@ module Diecut
     def raise_on_context_miss?
       true
     end
+
+    # Diecut's templates aren't HTML files - if they need escaping it should
+    # happen in the source file
+    def escapeHTML(str)
+      str
+    end
   end
 end

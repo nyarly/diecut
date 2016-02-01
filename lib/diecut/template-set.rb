@@ -16,19 +16,24 @@ module Diecut
       @context = nil
       @renderer = nil
     end
-    attr_reader :partials
+    attr_reader :partials, :templates, :path_templates
 
     def add(path, contents)
       template = Diecut::Template.new(path, contents)
       @templates[path] = template
-      @path_templates[path] = Diecut::Template.new("path for " + path, path)
+      path_template = Diecut::Template.new("path for " + path, path)
+      @path_templates[path] = path_template
       template.partials.each do |name, _|
         @partials[name] = template
       end
     end
 
+    def all_templates
+      @templates.values + @path_templates.values
+    end
+
     def context_class
-      @context_class ||= Class.new(Configurable)
+      @context_class ||= Configurable.build_subclass("General context")
     end
 
     def context

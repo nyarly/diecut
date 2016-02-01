@@ -10,15 +10,17 @@ module Diecut
 
     KindStem = Struct.new(:kind, :stem, :template_dir)
 
-    def initialize(name)
+    def initialize(name, source_path)
       @name = name
+      @source_path = source_path
       @default_activated = true
       @context_defaults = []
       @options = []
       @resolve_block = nil
       @kind_stems = {}
     end
-    attr_reader :default_activated, :name, :context_defaults, :options, :resolve_block
+    attr_reader :default_activated, :name, :source_path, :context_defaults,
+      :options, :resolve_block
 
     def kinds
       @kind_stems.keys
@@ -34,6 +36,10 @@ module Diecut
 
     def default_active?
       @default_activated
+    end
+
+    def apply_resolve(ui, context)
+      @resolve_block.call(ui, context)
     end
 
     # Attaches this plugin to a particular kind of diecut generator. Can be
@@ -115,12 +121,18 @@ module Diecut
       return option
     end
 
+    # The resolve block provides the loophole to allow complete configuration
+    # of the rendering context. The last thing that happens before files are
+    # generated is that all the plugin resolves are run, so that e.g. values
+    # can be calculated from other values. It's very difficult to analyze
+    # resolve blocks, however: use them as sparingly as possible.
+    #
+    # @yeildparam ui [UIContext]
+    #   the values supplied by the user to satisfy options
+    # @yeildparam context [Configurable]
+    #   the configured rendering context
     def resolve(&block)
       @resolve_block = block
-    end
-
-    def apply_resolve(ui, context)
-      @resolve_block.call(ui, context)
     end
   end
 end

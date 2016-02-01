@@ -16,7 +16,7 @@ describe Diecut::Mill do
   end
 
   let :plugin do
-    Diecut::PluginDescription.new('dummy').tap do |plugin|
+    Diecut::PluginDescription.new('dummy', 'dummy.rb').tap do |plugin|
       plugin.option('testing') do |opt|
         opt.goes_to('testing')
       end
@@ -27,7 +27,7 @@ describe Diecut::Mill do
   end
 
   let :other_plugin do
-    Diecut::PluginDescription.new('icky')
+    Diecut::PluginDescription.new('icky', 'icky.rb')
   end
 
   before :each do

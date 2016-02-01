@@ -39,14 +39,14 @@ module Diecut
     end
 
     def build_context_class
-      klass = Class.new(Configurable)
-      klass.target_name = path
+      klass = Configurable.build_subclass(path)
 
       reduced.leaf_fields.each do |field|
         klass.build_setting(field, reduced.sections.include?(field))
       end
       klass
     end
+
     def context
       @context ||= context_class.new
     end

@@ -4,20 +4,24 @@ require 'diecut/plugin-loader'
 
 module Diecut
   class << self
-    def load_plugins(prerelease = false)
-      loader = PluginLoader.new
-      loader.discover(prerelease)
-      loader.each_path do |path|
-        require path
-      end
+    def plugin_loader
+      @plugin_loader ||= PluginLoader.new
+    end
+
+    def plugin_loader=(loader)
+      @plugin_loader = loader
     end
 
     def clear_plugins
-      plugins.clear
+      @plugin_loader = nil
+    end
+
+    def load_plugins(prerelease = false)
+      plugin_loader.load_plugins(prerelease)
     end
 
     def plugins
-      @plugins ||= []
+      plugin_loader.plugins
     end
 
     # Used in a `diecut_plugin.rb` file (either in the `lib/` of a gem, or at
@@ -28,11 +32,8 @@ module Diecut
     #
     # @yieldparam description [PluginDescription]
     #   The description object to configure the plugin with.
-    def plugin(name)
-      desc = PluginDescription.new(name)
-      yield(desc)
-      plugins << desc
-      return desc
+    def plugin(name, &block)
+      plugin_loader.describe_plugin(name, &block)
     end
 
     def kinds

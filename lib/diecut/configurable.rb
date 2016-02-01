@@ -5,6 +5,10 @@ module Diecut
     module ClassMethods
       attr_accessor :target_name
 
+      def build_subclass(name)
+        Class.new(self).tap{|cc| cc.target_name = name }
+      end
+
       def classname
         name || superclass.name
       end
@@ -12,6 +16,9 @@ module Diecut
       def deep_field_names
         field_names.map do |name|
           field_value = field_metadata(name).default_value
+          if field_value==self
+            return ["LOOPED"]
+          end
           if field_value.is_a?(Class) and field_value < Diecut::Configurable
             field_value.deep_field_names.map do |subname|
               "#{name}.#{subname}"
@@ -34,7 +41,7 @@ module Diecut
 
           if into_metadata.nil?
             if from_value.is_a?(Class) and from_value < Calibrate::Configurable
-              nested = Class.new(Configurable)
+              nested = build_subclass("#{target_name}.#{name}")
               setting(name, nested)
               nested.absorb_context(from_value)
             else
@@ -51,7 +58,7 @@ module Diecut
             if from_value.is_a?(Class) and from_value < Calibrate::Configurable
               into_value.absorb_context(from_value)
             else
-              raise "Field clash: #{name.inspect} is already a complex value, but a simple value in absorbed configurable"
+              raise "Field clash: #{name.inspect} is already a complex value, but a simple value in the absorbed configurable"
             end
           else
             unless from_value.is_a?(Class) and from_value < Calibrate::Configurable
@@ -76,10 +83,10 @@ module Diecut
       end
 
       def build_setting(field, is_section = false)
-        nested = walk_path(field).last.nested
+        nested = walk_path(field).last.klass
 
         if is_section
-          nested.setting(field.last, Class.new(Configurable))
+          nested.setting(field.last, build_subclass("#{target_name}.#{field.last}"))
         else
           nested.setting(field.last)
         end
@@ -111,7 +118,6 @@ module Diecut
       def value=(value)
         instance.__send__(metadata.writer_method, value)
       end
-
     end
 
     class PathSegment < ::Struct.new(:klass, :name)
@@ -123,7 +129,9 @@ module Diecut
         @nested ||=
           begin
             if metadata.nil?
-              Class.new(Configurable).tap{|nested| klass.setting(name, nested) }
+              nested = Configurable.build_subclass("#{klass.target_name}.#{name}")
+              klass.setting(name, nested)
+              nested
             else
               metadata.default_value
             end

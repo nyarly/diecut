@@ -56,30 +56,16 @@ module Diecut
     end
 
     def apply_option_to_ui(option)
-      if ui_class.options_hash.key?(option.name)
-        existing = ui_class.options_hash[option.name]
-        if existing.default_value != option.default_value
-          raise OptionClass, "default value for option #{option.name.inspect} changed from #{existing.default_value} to #{option.default_value}"
-        end
-      end
-
       ui_class.options_hash[option.name] = option
 
       if option.has_context_path?
         context_metadata = context_class.walk_path(option.context_path).last.metadata
         if option.has_default?
-          if context_metadata.is?(:defaulting) and option.default_value != context_metadata.default_value
-            raise OverriddenDefault, "default for option #{option.name.inspect} (#{option.default_value})" +
-              "differs from its context target #{option.context_path.inspect} (#{context_metadata.default_value})"
-          else
-            ui_class.setting(option.name, option.default_value)
-          end
+          ui_class.setting(option.name, option.default_value)
+        elsif context_metadata.is?(:defaulting)
+          ui_class.setting(option.name, context_metadata.default_value)
         else
-          if context_metadata.is?(:defaulting)
-            ui_class.setting(option.name, context_metadata.default_value)
-          else
-            ui_class.setting(option.name)
-          end
+          ui_class.setting(option.name)
         end
       else
         if option.has_default?
