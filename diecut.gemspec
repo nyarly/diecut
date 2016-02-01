@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.files		= %w[
   ]
 
-  spec.test_file        = "spec_help/gem_test_suite.rb"
+  spec.test_file        = "gem_test_suite.rb"
   spec.licenses = ["MIT"]
   spec.require_paths = %w[lib/]
   spec.rubygems_version = "1.3.5"
