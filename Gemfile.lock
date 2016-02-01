@@ -3,7 +3,7 @@ PATH
   specs:
     diecut (0.0.2)
       calibrate (~> 0.0.1)
-      mustache (> 1.0)
+      mustache (~> 1.0)
       paint (~> 0.8)
       thor (~> 0.19)
       valise (~> 1.2)
