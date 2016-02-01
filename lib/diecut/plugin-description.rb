@@ -102,6 +102,15 @@ module Diecut
     #   plugin.default("built_at"){ Time.now }
     #   plugin.default("author", "Judson")
     def default(context_path, value = NO_VALUE, &block)
+      context_path =
+        case context_path
+        when Array
+          context_path
+        when /.+\..+/ # has an embedded .
+          context_path.split('.')
+        else
+          [context_path]
+        end
       if value != NO_VALUE and not block.nil?
         raise InvalidPlugin, "Default on #{name.inspect} both has a simple default value (#{value}) and a dynamic block value, which isn't allowed."
       end

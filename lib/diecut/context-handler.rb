@@ -47,8 +47,6 @@ module Diecut
       target = context_class.walk_path(default.context_path).last
       if target.metadata.nil?
         raise UnusedDefault, "No template uses a value at #{default.context_path.inspect}"
-      elsif not target.metadata.default_value.nil?
-        raise OverriddenDefault, "default for #{default.context_path.inspect} already set to #{target.metadata.default_value.inspect}"
       else
         target.metadata.default_value = default.value
         target.metadata.is(:defaulting)

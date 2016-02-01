@@ -24,6 +24,7 @@ describe Diecut::Mill do
       plugin.option('thing') do |opt|
         opt.goes_to(['thing'])
       end
+      plugin.default('thing', 15)
     end
   end
 
@@ -36,9 +37,30 @@ describe Diecut::Mill do
     end
   end
 
+  let :default_override_plugin do
+    Diecut::PluginDescription.new('stinky', 'stinky.rb').tap do |plugin|
+      plugin.default_off
+      plugin.default('thing', 'fifteen')
+    end
+  end
+
+  let :plugins do
+    [plugin, option_colision_plugin, default_override_plugin]
+  end
+
+  let :loader do
+    instance_double("Diecut::PluginLoader").tap do |loader|
+      allow(loader).to receive(:strict_sequence?).and_return(false)
+      allow(loader).to receive(:plugins).and_return(plugins)
+    end
+  end
+
   before :each do
-    mill.mediator.add_plugin(plugin)
-    mill.mediator.add_plugin(option_colision_plugin)
+    allow(Diecut).to receive(:plugin_loader).and_return(loader)
+
+    plugins.each do |plugin|
+      mill.mediator.add_plugin(plugin)
+    end
   end
 
   subject :linter do
@@ -51,7 +73,6 @@ describe Diecut::Mill do
 
   describe "happy set of plugins" do
     it "should produce a report" do
-      puts "\n#{__FILE__}:#{__LINE__} => \n#{linter.report}"
       expect(report).to match(/Total QA failing reports: 0/)
     end
   end
@@ -62,7 +83,6 @@ describe Diecut::Mill do
     end
 
     it "should produce a report" do
-      puts "\n#{__FILE__}:#{__LINE__} => \n#{linter.report}"
       expect(report).to match(/Option collisions: FAIL/)
       expect(report).to match(/Total QA failing reports:/)
       expect(report).to match(/there's/)
@@ -76,11 +96,36 @@ describe Diecut::Mill do
     end
 
     it "should produce a report" do
-      puts "\n#{__FILE__}:#{__LINE__} => \n#{linter.report}"
       expect(report).to match(/Template fields all have settings: WARN/)
       expect(report).to match(/Output field\s+Source file/)
       expect(report).to match(/thing\s+{{testing}}.txt/)
       expect(report).not_to match(/^\s*testing\b/)
+      expect(report).to match(/Total QA failing reports:/)
+    end
+  end
+
+  describe "with intentional override of default" do
+    before :each do
+      mill.mediator.activate("dummy")
+      mill.mediator.activate("stinky")
+      allow(loader).to receive(:strict_sequence?).with(plugin, default_override_plugin).and_return(true)
+    end
+
+    it "should produce a report" do
+      expect(report).to match(/Overridden context defaults: OK/)
+    end
+  end
+
+  describe "with accidental override of default" do
+    before :each do
+      mill.mediator.activate("dummy")
+      mill.mediator.activate("stinky")
+    end
+
+    it "should produce a report" do
+      expect(report).to match(/Overridden context defaults: FAIL/)
+      expect(report).to match(/Output field\s+Default value\s+Source plugin/)
+      expect(report).to match(/thing\s+15\s+dummy/)
       expect(report).to match(/Total QA failing reports:/)
     end
   end

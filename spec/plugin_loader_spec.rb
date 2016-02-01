@@ -42,6 +42,9 @@ describe Diecut::PluginLoader do
       },
       "/cycle_path/diecut_plugin.rb" => proc{
         loader.describe_plugin("cycle"){}
+      },
+      "<DEFAULTS>:diecut_plugin.rb" => proc{
+        loader.describe_plugin("local"){}
       }
     }
   end
@@ -49,7 +52,7 @@ describe Diecut::PluginLoader do
   let :valise do
     Valise::Set.define do
       defaults do
-        file "{{testing}}.txt", "I am a {{thing}} for {{testing}}"
+        file "diecut_plugin.rb", "I am a thing for testing"
       end
     end
   end
@@ -67,9 +70,40 @@ describe Diecut::PluginLoader do
     end
   end
 
+  let :root_plugin do
+    loader.plugins.find{|pl| pl.name == 'root' }
+  end
+
+  let :simple_plugin do
+    loader.plugins.find{|pl| pl.name == 'simple' }
+  end
+
+  let :side_plugin do
+    loader.plugins.find{|pl| pl.name == 'side' }
+  end
+
+  let :cycle_plugin do
+    loader.plugins.find{|pl| pl.name == 'cycle' }
+  end
+
+  let :local_plugin do
+    loader.plugins.find{|pl| pl.name == 'local' }
+  end
+
+  before :each do
+    loader.load_plugins
+  end
+
 
   it "should load some plugins" do
-    loader.load_plugins
-    expect(loader.plugins.length).to eq(4)
+    expect(loader.plugins.length).to eq(5)
+  end
+
+  it "should trace sequencing" do
+    expect(loader.strict_sequence?(root_plugin, local_plugin)).to eq(true)
+    expect(loader.strict_sequence?(local_plugin, root_plugin)).to eq(false)
+    expect(loader.strict_sequence?(root_plugin, simple_plugin)).to eq(true)
+    expect(loader.strict_sequence?(root_plugin, cycle_plugin)).to eq(true)
+    expect(loader.strict_sequence?(side_plugin, cycle_plugin)).to eq(true)
   end
 end

@@ -4,7 +4,7 @@ module Diecut
       if cause.nil?
         super
       else
-        super + "because: #{cause.message}"
+        super + " because: #{cause.message}"
       end
     end
   end

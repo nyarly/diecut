@@ -20,12 +20,11 @@ module Diecut
     end
 
     # Needed:
-    # Overridden context defaults (without plugin dep)
     # Overridden option defaults (without plugin dep)
     # Option with default, context with default (w/o PD)
 
     def unindent(text)
-      indent = text.grep(/^\s*/).max_by(&:length)
+      indent = text.scan(/(^[ \t]*)\S/).map{|cap| cap.first}.max_by(&:length)
       text.gsub(%r{^#{indent}},'')
     end
 
@@ -60,9 +59,19 @@ module Diecut
           default_values[default.context_path] << [default, plugin]
         end
 
+        default_values.each do |key, set|
+          default_values[key] = set.find_all do |plugin|
+            !set.any?{|child|
+              next if child == plugin
+              Diecut.plugin_loader.strict_sequence?(plugin[1], child[1])
+            }
+          end
+        end
+
         default_values.each_value do |set|
           if set.length > 1
             set.each do |default, plugin|
+
               report.add(default.context_path.join("."), default.value, plugin.name)
             end
           end
@@ -89,43 +98,38 @@ module Diecut
     end
 
     def option_collision_report
-      report = Report.new("Option collisions", ["Output target", "Option name", "Source plugin"])
-
-      option_targets = Hash.new{|h,k| h[k]=[]}
-      mill.mediator.activated_plugins.each do |plugin|
-        plugin.options.each do |option|
+      Report.new("Option collisions", ["Output target", "Option name", "Source plugin"]).tap do |report|
+        option_targets = Hash.new{|h,k| h[k]=[]}
+        each_option do |option, plugin|
           next unless option.has_context_path?
           option_targets[option.context_path] << [plugin, option]
         end
-      end
-      option_targets.each_value do |set|
-        if set.length > 1
-          set.each do |plugin, option|
-            report.add(option.context_path.join("."), option.name, plugin.name)
+        option_targets.each_value do |set|
+          if set.length > 1
+            set.each do |plugin, option|
+              report.add(option.context_path.join("."), option.name, plugin.name)
+            end
           end
         end
+
+        unless report.empty?
+          report.fail("Multiple options assign the same values to be rendered")
+          report.advice = unindent(<<-EOA)
+          This is problem because two options in the user interface both change
+          rendered values. If a user supplies both with different values, the
+          output isn't predictable (either one might take effect).
+
+          Most likely, this is a simple error: remove options from each group
+          that targets the same rendered value until only one remains. It may
+          also be that one option has a typo - that there's a rendering target
+          that's omitted.
+          EOA
+        end
       end
-
-      unless report.empty?
-        report.fail("Multiple options assign the same values to be rendered")
-        report.advice = (<<-EOA).gsub(/^      /,'')
-        This is problem because two options in the user interface both change
-        rendered values. If a user supplies both with different values, the
-        output isn't predictable (either one might take effect).
-
-        Most likely, this is a simple error: remove options from each group
-        that targets the same rendered value until only one remains. It may
-        also be that one option has a typo - that there's a rendering target
-        that's omitted.
-        EOA
-      end
-
-      report
     end
 
     def orphaned_fields
       Report.new("Template fields all have settings", ["Output field", "Source file"]).tap do |report|
-        ui_class = mill.ui_class
         context_class = mill.context_class
 
         required_fields = {}
@@ -145,12 +149,10 @@ module Diecut
           end
         end
 
-        mill.mediator.activated_plugins.each do |plugin|
-          plugin.options.each do |option|
-            next unless option.has_context_path?
-            field = option.context_path.join(".")
-            required_fields.delete(field)
-          end
+        each_option do |option, plugin|
+          next unless option.has_context_path?
+          field = option.context_path.join(".")
+          required_fields.delete(field)
         end
 
         required_fields.each do |name, targets|
@@ -161,7 +163,7 @@ module Diecut
 
         unless report.empty?
           report.status = "WARN"
-          report.advice = (<<-EOA).gsub(/^        /,'')
+          report.advice = unindent(<<-EOA)
           These fields might not receive a value during generation, which will
           raise an error at use time.
 

@@ -8,17 +8,13 @@ PATH
       thor (> 0)
       valise (> 0)
 
-PATH
-  remote: ~/ruby/gems/cadre
-  specs:
-    cadre (1.0.2)
-      thor (>= 0.14, < 1.0)
-      tilt (> 1.0)
-      valise (~> 1.1)
-
 GEM
   remote: https://rubygems.org/
   specs:
+    cadre (1.0.3)
+      thor (>= 0.14, < 1.0)
+      tilt (> 1.0)
+      valise (~> 1.1)
     calibrate (0.0.1)
     caliph (0.3.1)
     corundum (0.6.0)
@@ -70,7 +66,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  cadre!
+  cadre
   corundum
   diecut!
 

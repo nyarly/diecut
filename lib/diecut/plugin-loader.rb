@@ -32,6 +32,7 @@ module Diecut
       end
     end
 
+    # :nocov:
     def latest_specs(prerelease)
       Gem::Specification.latest_specs(prerelease)
     end
@@ -39,6 +40,7 @@ module Diecut
     def require_plugin(path)
       require path
     end
+    # :nocov:
 
     PLUGIN_FILENAME = 'diecut_plugin.rb'
     def discover(prerelease)
@@ -130,7 +132,7 @@ module Diecut
 
       case [from_source.gem?, to_source.gem?]
       when [true, true]
-        dep_path?(from_source.gem, to_source.gem)
+        dep_path?(to_source, from_source)
       when [true, false]
         false
       when [false, true]
@@ -140,7 +142,7 @@ module Diecut
       end
     end
 
-    def dep_path(from_gem, to_gem)
+    def dep_path?(from_gem, to_gem)
       # potential to optimize this: build a map of reachablility and test
       # against that.
       closed = {}
@@ -149,7 +151,7 @@ module Diecut
         current = open.shift
         return true if current == to_gem
         closed[current] = true
-        open += @by_gem_name[current].select{|gem| !closed.has_key?(gem)}
+        open += @by_gem_name[current.gem.name].select{|gem| !closed.has_key?(gem)}
       end
       return false
     end
