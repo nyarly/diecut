@@ -47,6 +47,7 @@ Gem::Specification.new do |spec|
     spec/linter_spec.rb
     spec/template_set_spec.rb
     spec/configurable_spec.rb
+    spec/cli_spec.rb
   ]
 
   spec.test_file        = "gem_test_suite.rb"
