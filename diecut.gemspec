@@ -17,6 +17,36 @@ Gem::Specification.new do |spec|
   # Do this: y$@"
   # !!find lib bin doc spec spec_help -not -regex '.*\.sw.' -type f 2>/dev/null
   spec.files		= %w[
+    lib/diecut/context-handler.rb
+    lib/diecut/plugin-description/context-default.rb
+    lib/diecut/plugin-description/option.rb
+    lib/diecut/caller-locations-polyfill.rb
+    lib/diecut/report.rb
+    lib/diecut/mill.rb
+    lib/diecut/template.rb
+    lib/diecut/cli.rb
+    lib/diecut/ui-config.rb
+    lib/diecut/ui-applier.rb
+    lib/diecut/mediator.rb
+    lib/diecut/configurable.rb
+    lib/diecut/mustache.rb
+    lib/diecut/template-reducer.rb
+    lib/diecut/linter.rb
+    lib/diecut/plugin-description.rb
+    lib/diecut/plugin-loader.rb
+    lib/diecut/errors.rb
+    lib/diecut/template-set.rb
+    lib/diecut.rb
+    bin/diecut
+    spec/register_plugin_spec.rb
+    spec/template_spec.rb
+    spec/spec_helper.rb
+    spec/plugin_loader_spec.rb
+    spec/template-reducer_spec.rb
+    spec/mill_spec.rb
+    spec/linter_spec.rb
+    spec/template_set_spec.rb
+    spec/configurable_spec.rb
   ]
 
   spec.test_file        = "gem_test_suite.rb"
