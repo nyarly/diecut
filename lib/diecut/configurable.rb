@@ -1,4 +1,6 @@
 require 'calibrate'
+require 'diecut/errors'
+
 module Diecut
   class Configurable
     include Calibrate::Configurable
@@ -58,14 +60,14 @@ module Diecut
             if from_value.is_a?(Class) and from_value < Calibrate::Configurable
               into_value.absorb_context(from_value)
             else
-              raise "Field clash: #{name.inspect} is already a complex value, but a simple value in the absorbed configurable"
+              raise FieldClash, "#{name.inspect} is already a complex value, but a simple value in the absorbed configurable"
             end
           else
             unless from_value.is_a?(Class) and from_value < Calibrate::Configurable
               # Noop - maybe should compare the default values? - should always
               # be nil right now...
             else
-              raise "Field clash: #{name.inspect} is already a simple value, but a complex value on the absorbed configurable"
+              raise FieldClash, "#{name.inspect} is already a simple value, but a complex value on the absorbed configurable"
             end
           end
         end

@@ -15,7 +15,7 @@ module Diecut
 
     def template
       (<<-EOT).gsub(/^      /, '')
-      {{#reports}}{{#status_color}}{{name}}: {{status}} {{#length}} {{length}}{{/length}}
+      {{#reports}}{{#status_color}}{{name}}   {{status}} {{#length}} {{length}}{{/length}}
       {{/status_color}}
       {{#summary}}{{summary}}
       {{/summary}}{{^empty  }}{{#headers}}{{it}}    {{/headers}}
@@ -24,6 +24,7 @@ module Diecut
       {{advice}}
       {{/advice}}
       {{/reports}}
+
       {{#status_color}}Total QA report items: {{total_items}}
       Total QA failing reports: {{total_fails}}
       {{/status_color}}
@@ -45,6 +46,14 @@ module Diecut
       reports.inject(0){|sum, report| sum + (report.passed ? 0 : 1)}
     end
 
+    def report_name_width
+      @report_name_width ||= reports.map(&:name).map(&:size).max
+    end
+
+    def sized_name(name)
+      array.take(widths.length).zip(widths).map{|item, width| { it: item.to_s.ljust(width)}}
+    end
+
     def context(renderer)
       bad_color = proc{|text,render| Paint[renderer.render(text), :red]}
       good_color =  proc{|text,render| Paint[renderer.render(text), :green]}
@@ -58,6 +67,7 @@ module Diecut
         status_color: passed? ? good_color : bad_color
       }
       context[:reports].each do |report|
+        report[:name] = report[:name].rjust(report_name_width)
         report[:status_color] =
           case report[:status]
           when /ok/i

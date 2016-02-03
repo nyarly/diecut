@@ -66,7 +66,10 @@ module Diecut
 
       def lint
         require 'diecut/linter'
+        require 'diecut/error-report'
         mill = Mill.new(self.class.kind)
+        Diecut.issue_handler = Diecut::ErrorHandling::Reporter.new(mill)
+
         if options["all_on"]
           mill.activate_plugins{ true }
         else
@@ -86,13 +89,11 @@ module Diecut
       Class.new(Thor) do
         gen = Cli::TargetedGenerate.subclass_for(plugin_kind, mediator, example_ui)
         method_options(gen.class_options)
-        register gen,
-          "generate", "generate TARGET", "Generate #{plugin_kind} output"
+        register gen, "generate", "#{plugin_kind} generate TARGET", "Generate #{plugin_kind} output"
 
         lint = Cli::Lint.subclass_for(plugin_kind, mediator, example_ui)
         method_options(lint.class_options)
-        register lint,
-          "lint", "lint", "Check well-formed-ness of #{plugin_kind} code generators"
+        register lint, "lint", "#{plugin_kind} lint", "Check well-formed-ness of #{plugin_kind} code generators"
       end
     end
 

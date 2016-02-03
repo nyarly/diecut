@@ -9,4 +9,8 @@ RSpec.configure do |config|
     mock.verify_partial_doubles = true
     mock.verify_doubled_constant_names = true
   end
+
+  config.before(:suite) do
+    Diecut.issue_handler = Diecut::ErrorHandling::Silent.new
+  end
 end

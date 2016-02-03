@@ -1,6 +1,7 @@
 require 'diecut/mediator'
 require 'diecut/plugin-description'
 require 'diecut/plugin-loader'
+require 'diecut/errors'
 
 module Diecut
   class << self
@@ -23,6 +24,11 @@ module Diecut
     def plugins
       plugin_loader.plugins
     end
+
+    def issue_handler
+      @issue_handler ||= ErrorHandling::AllWarn.new
+    end
+    attr_writer :issue_handler
 
     # Used in a `diecut_plugin.rb` file (either in the `lib/` of a gem, or at
     # the local `~/.config/diecut/diecut_plugin.rb` to register a new plugin.

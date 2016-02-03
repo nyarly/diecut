@@ -1,5 +1,6 @@
 require 'valise'
 require 'diecut'
+require 'diecut/errors'
 require 'diecut/template-set'
 
 module Diecut
@@ -8,7 +9,7 @@ module Diecut
       @kind = kind
     end
     attr_reader :kind
-    attr_writer :valise, :mediator, :templates
+    attr_writer :valise, :mediator, :templates, :issue_handler
 
     def mediator
       @mediator ||= Diecut.mediator(kind)
@@ -29,12 +30,17 @@ module Diecut
     end
 
     def valise
-      @valise ||= mediator.activated_plugins.map do |plugin|
-        stem = plugin.stem_for(kind)
-        Valise::Set.define do
-          ro stem.template_dir
-        end.stemmed(stem.stem)
-      end.reduce{|left, right| left + right}.sub_set(kind)
+      @valise ||=
+        begin
+          stems = mediator.activated_plugins.map do |plugin|
+            plugin.stem_for(kind)
+          end
+          Valise::Set.define do
+            stems.each do |stem|
+              ro stem.template_dir
+            end
+          end
+        end
     end
 
     def load_files

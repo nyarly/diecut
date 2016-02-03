@@ -40,10 +40,10 @@ module Diecut
     # < User gets involved >
     #
     def build_example_ui
-      ui_class = Class.new(UIConfig)
+      ui_class = UIConfig.build_subclass("Example UI")
 
       handler = ContextHandler.new
-      handler.context_class = Class.new(Configurable)
+      handler.context_class = Configurable.build_subclass("dummy context")
       handler.ui_class = ui_class
       handler.plugins = @plugins
 
@@ -54,7 +54,7 @@ module Diecut
     end
 
     def build_ui_class(context_class)
-      ui_class = Class.new(UIConfig)
+      ui_class = UIConfig.build_subclass("User Interface")
 
       handler = ContextHandler.new
       handler.context_class = context_class

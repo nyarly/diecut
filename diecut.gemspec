@@ -1,6 +1,6 @@
 Gem::Specification.new do |spec|
   spec.name		= "diecut"
-  spec.version		= "0.0.2"
+  spec.version		= "0.0.3"
   author_list = {
     "Judson Lester" => 'nyarly@gmail.com'
   }
@@ -37,6 +37,18 @@ Gem::Specification.new do |spec|
     lib/diecut/errors.rb
     lib/diecut/template-set.rb
     lib/diecut.rb
+
+    lib/diecut/error-report.rb
+    lib/diecut/report-builder.rb
+    lib/diecut/report-builders/exception-report.rb
+    lib/diecut/report-builders/invalid-plugin.rb
+    lib/diecut/report-builders/missing-context-field.rb
+    lib/diecut/report-builders/option-collision.rb
+    lib/diecut/report-builders/orphaned-field.rb
+    lib/diecut/report-builders/overridden-context-defaults.rb
+    lib/diecut/report-builders/template-list.rb
+    lib/diecut/report-builders/unused-default.rb
+
     bin/diecut
     spec/register_plugin_spec.rb
     spec/template_spec.rb
@@ -49,6 +61,9 @@ Gem::Specification.new do |spec|
     spec/configurable_spec.rb
     spec/cli_spec.rb
   ]
+
+  spec.bindir = 'bin'
+  spec.executables = %w(diecut)
 
   spec.test_file        = "gem_test_suite.rb"
   spec.licenses = ["MIT"]

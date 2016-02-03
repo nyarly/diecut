@@ -83,7 +83,7 @@ describe Diecut::Mill do
     end
 
     it "should produce a report" do
-      expect(report).to match(/Option collisions: FAIL/)
+      expect(report).to match(/Option collisions\s*FAIL/)
       expect(report).to match(/Total QA failing reports:/)
       expect(report).to match(/there's/)
     end
@@ -96,7 +96,7 @@ describe Diecut::Mill do
     end
 
     it "should produce a report" do
-      expect(report).to match(/Template fields all have settings: WARN/)
+      expect(report).to match(/Template fields all have settings\s*WARN/)
       expect(report).to match(/Output field\s+Source file/)
       expect(report).to match(/thing\s+{{testing}}.txt/)
       expect(report).not_to match(/^\s*testing\b/)
@@ -112,7 +112,7 @@ describe Diecut::Mill do
     end
 
     it "should produce a report" do
-      expect(report).to match(/Overridden context defaults: OK/)
+      expect(report).to match(/Overridden context defaults\s*OK/)
     end
   end
 
@@ -123,7 +123,7 @@ describe Diecut::Mill do
     end
 
     it "should produce a report" do
-      expect(report).to match(/Overridden context defaults: FAIL/)
+      expect(report).to match(/Overridden context defaults\s*FAIL/)
       expect(report).to match(/Output field\s+Default value\s+Source plugin/)
       expect(report).to match(/thing\s+15\s+dummy/)
       expect(report).to match(/Total QA failing reports:/)

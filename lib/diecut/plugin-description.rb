@@ -22,6 +22,11 @@ module Diecut
     attr_reader :default_activated, :name, :source_path, :context_defaults,
       :options, :resolve_block
 
+    def issue_handler
+      @issue_handler ||= Diecut.issue_handler
+    end
+    attr_writer :issue_handler
+
     def kinds
       @kind_stems.keys
     end
@@ -67,7 +72,7 @@ module Diecut
     #
     def for_kind(kind, templates = nil, stem = nil)
       stem ||= [kind]
-      templates ||= "templates"
+      templates ||= "diecut_templates"
       templates = File.expand_path(templates, File.dirname(caller_locations(1..1).first.absolute_path))
       @kind_stems[kind] = KindStem.new(kind, stem, templates)
     end
@@ -112,6 +117,7 @@ module Diecut
           [context_path]
         end
       if value != NO_VALUE and not block.nil?
+        issue_handler.invalid_plugin(name, context_path, value)
         raise InvalidPlugin, "Default on #{name.inspect} both has a simple default value (#{value}) and a dynamic block value, which isn't allowed."
       end
       @context_defaults << ContextDefault.new(context_path, value, block)

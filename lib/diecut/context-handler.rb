@@ -3,12 +3,17 @@ module Diecut
   class ContextHandler
     attr_accessor :context_class, :ui_class, :plugins
 
+    def issue_handler
+      @issue_handler ||= Diecut.issue_handler
+    end
+    attr_writer :issue_handler
+
     def apply_simple_defaults
       plugins.each do |plugin|
         plugin.context_defaults.each do |default|
           next unless default.simple?
           begin
-            apply_simple_default(default)
+            apply_simple_default(plugin, default)
           rescue Error
             raise Error, "Plugin #{plugin.name.inspect} failed"
           end
@@ -19,7 +24,7 @@ module Diecut
     def apply_to_ui
       plugins.each do |plugin|
         plugin.options.each do |option|
-          apply_option_to_ui(option)
+          apply_option_to_ui(plugin, option)
         end
       end
     end
@@ -43,21 +48,25 @@ module Diecut
       end
     end
 
-    def apply_simple_default(default)
+    def apply_simple_default(plugin, default)
       target = context_class.walk_path(default.context_path).last
       if target.metadata.nil?
-        raise UnusedDefault, "No template uses a value at #{default.context_path.inspect}"
+        issue_handler.unused_default(plugin.name, context_path)
       else
         target.metadata.default_value = default.value
         target.metadata.is(:defaulting)
       end
     end
 
-    def apply_option_to_ui(option)
+    def apply_option_to_ui(plugin, option)
       ui_class.options_hash[option.name] = option
 
       if option.has_context_path?
         context_metadata = context_class.walk_path(option.context_path).last.metadata
+        if context_metadata.nil?
+          issue_handler.missing_context_field(plugin.name, option.name, option.context_path)
+          return
+        end
         if option.has_default?
           ui_class.setting(option.name, option.default_value)
         elsif context_metadata.is?(:defaulting)
