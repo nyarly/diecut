@@ -15,7 +15,7 @@ module Diecut
           end
 
           mediator.plugins.each do |plugin|
-            class_option "with-#{plugin.name}", :default => plugin.default_active?
+            class_option "with-#{plugin.name}", :default => plugin.default_active_for(kind)
           end
 
           setup_subclass(mediator, example_ui)

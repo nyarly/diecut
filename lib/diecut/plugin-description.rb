@@ -8,7 +8,15 @@ module Diecut
     include CallerLocationsPolyfill
     NO_VALUE = Object.new.freeze
 
-    KindStem = Struct.new(:kind, :stem, :template_dir)
+    class KindStem < Struct.new(:kind, :stem, :template_dir, :default_activated)
+      def default_off
+        self.default_activated = false
+      end
+
+      def default_on
+        self.default_activated = true
+      end
+    end
 
     def initialize(name, source_path)
       @name = name
@@ -37,6 +45,15 @@ module Diecut
 
     def has_kind?(kind)
       @kind_stems.key?(kind)
+    end
+
+    def default_activated_for(kind)
+      stem = @kind_stems[kind]
+      if stem.default_activated.nil?
+        default_active?
+      else
+        stem.default_activated
+      end
     end
 
     def default_active?
@@ -71,10 +88,12 @@ module Diecut
     #
     #
     def for_kind(kind, templates = nil, stem = nil)
-      stem ||= [kind]
       templates ||= "diecut_templates"
       templates = File.expand_path(templates, File.dirname(caller_locations(1..1).first.absolute_path))
-      @kind_stems[kind] = KindStem.new(kind, stem, templates)
+      kind_stem = KindStem.new(kind, stem, templates, nil)
+      @kind_stems[kind] = kind_stem
+      yield kind_stem if block_given?
+      return kind_stem
     end
 
     # Force this plugin to be enabled to be used. Good for optional features.
@@ -118,7 +137,6 @@ module Diecut
         end
       if value != NO_VALUE and not block.nil?
         issue_handler.invalid_plugin(name, context_path, value)
-        raise InvalidPlugin, "Default on #{name.inspect} both has a simple default value (#{value}) and a dynamic block value, which isn't allowed."
       end
       @context_defaults << ContextDefault.new(context_path, value, block)
     end

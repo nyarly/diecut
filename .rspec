@@ -1,6 +1,7 @@
 --format documentation
 --out last_run
 --color
+-I spec_help
 --format documentation
 --require simplecov
 --require spec_helper

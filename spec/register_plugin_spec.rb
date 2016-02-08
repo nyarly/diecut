@@ -8,6 +8,8 @@ describe "Diecut.plugin" do
   end
 
   before :each do
+    Diecut.clear_plugins
+
     Diecut.plugin_loader = loader
     Diecut.plugin("test") do |plugin|
       plugin.for_kind("app")

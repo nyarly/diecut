@@ -32,6 +32,11 @@ module Diecut
       end
     end
 
+    def issue_handler
+      @issue_handler ||= Diecut.issue_handler
+    end
+    attr_writer :issue_handler
+
     # :nocov:
     def latest_specs(prerelease)
       Gem::Specification.latest_specs(prerelease)
@@ -170,7 +175,9 @@ module Diecut
           return path
         end
       end
-      raise "Couldn't find source of plugin..."
+      fallback_location = locations.first.absolute_path
+      issue_handler.unregistered_plugin_source(fallback_location)
+      return fallback_location
     end
 
     def add_plugin_desc(desc)

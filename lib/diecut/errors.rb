@@ -13,6 +13,10 @@ module Diecut
         "Default on #{context_path.inspect} from plugin #{name} has both a simple default value (#{value}) and a dynamic block value, which isn't allowed."
       end
 
+      def unregistered_plugin_source_message(source_path)
+        "Couldn't find source of plugin which appears to be defined at #{source_path}"
+      end
+
       def missing_context_field(plugin_name, option_name, context_path)
         issue(missing_context_field_message(option_name, context_path))
       end
@@ -23,6 +27,10 @@ module Diecut
 
       def invalid_plugin(name, context_path, value)
         issue invalid_plugin_message(name, context_path, value)
+      end
+
+      def unregistered_plugin_source(source_path)
+        issue unregistered_plugin_source_message(source_path)
       end
 
       def handle_exception(ex)
@@ -56,6 +64,10 @@ module Diecut
         raise
       end
 
+      def unregistered_plugin_source(source_path)
+        raise UnregisteredPluginSource, unregistered_plugin_source_message(source_path)
+      end
+
       def missing_context_field(option_name, context_path)
         raise MissingContext, missing_context_field_message(option_name, context_path)
       end
@@ -80,4 +92,5 @@ module Diecut
   class OverriddenDefault < Error; end
   class InvalidPlugin < Error; end
   class FieldClash < Error; end
+  class UnregisteredPluginSource < Error; end
 end

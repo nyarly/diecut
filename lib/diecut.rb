@@ -5,6 +5,18 @@ require 'diecut/errors'
 
 module Diecut
   class << self
+    # Used in a `diecut_plugin.rb` file (either in the `lib/` of a gem, or at
+    # the local `~/.config/diecut/diecut_plugin.rb` to register a new plugin.
+    #
+    # @param name [String, Symbol]
+    #   Names the plugin so that it can be toggled  later
+    #
+    # @yieldparam description [PluginDescription]
+    #   The description object to configure the plugin with.
+    def plugin(name, &block)
+      plugin_loader.describe_plugin(name, &block)
+    end
+
     def plugin_loader
       @plugin_loader ||= PluginLoader.new
     end
@@ -30,18 +42,6 @@ module Diecut
     end
     attr_writer :issue_handler
 
-    # Used in a `diecut_plugin.rb` file (either in the `lib/` of a gem, or at
-    # the local `~/.config/diecut/diecut_plugin.rb` to register a new plugin.
-    #
-    # @param name [String, Symbol]
-    #   Names the plugin so that it can be toggled  later
-    #
-    # @yieldparam description [PluginDescription]
-    #   The description object to configure the plugin with.
-    def plugin(name, &block)
-      plugin_loader.describe_plugin(name, &block)
-    end
-
     def kinds
       plugins.reduce([]) do |list, plugin|
         list + plugin.kinds
@@ -52,7 +52,7 @@ module Diecut
       Mediator.new.tap do |med|
         plugins.each do |plug|
           next unless plug.has_kind?(kind)
-          med.add_plugin(plug)
+          med.add_plugin(plug, plug.default_activated_for(kind))
         end
       end
     end

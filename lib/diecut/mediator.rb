@@ -11,8 +11,8 @@ module Diecut
     end
     attr_reader :plugins
 
-    def add_plugin(plug)
-      @activated[plug.name] = plug.default_activated
+    def add_plugin(plug, activated)
+      @activated[plug.name] = activated
       @plugins << plug
     end
 

@@ -31,8 +31,8 @@ describe Diecut::Mill do
   end
 
   before :each do
-    mill.mediator.add_plugin(plugin)
-    mill.mediator.add_plugin(other_plugin)
+    mill.mediator.add_plugin(plugin, true)
+    mill.mediator.add_plugin(other_plugin, true)
   end
 
   it "should render files" do

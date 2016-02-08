@@ -59,7 +59,7 @@ describe Diecut::Mill do
     allow(Diecut).to receive(:plugin_loader).and_return(loader)
 
     plugins.each do |plugin|
-      mill.mediator.add_plugin(plugin)
+      mill.mediator.add_plugin(plugin, plugin.default_active?)
     end
   end
 

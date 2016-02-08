@@ -37,7 +37,13 @@ module Diecut
           end
           Valise::Set.define do
             stems.each do |stem|
-              ro stem.template_dir
+              if stem.stem
+                stemmed(stem.stem) do
+                  ro stem.template_dir
+                end
+              else
+                ro stem.template_dir
+              end
             end
           end
         end
