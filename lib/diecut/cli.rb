@@ -15,7 +15,7 @@ module Diecut
           end
 
           mediator.plugins.each do |plugin|
-            class_option "with-#{plugin.name}", :default => plugin.default_active_for(kind)
+            class_option "with-#{plugin.name}", :default => plugin.default_activated_for(kind)
           end
 
           setup_subclass(mediator, example_ui)
@@ -48,8 +48,10 @@ module Diecut
         mill.activate_plugins {|name| options["with-#{name}"] }
 
         ui = mill.user_interface
-        options.delete_if{|_, value| value.nil?}
-        ui.from_hash(options)
+        ui_hash = Hash[ options.find_all do |name, value|
+          not value.nil?
+        end]
+        ui.from_hash(ui_hash)
 
         mill.churn(ui) do |path, contents|
           create_file(path, contents)
