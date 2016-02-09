@@ -1,13 +1,16 @@
 Gem::Specification.new do |spec|
   spec.name		= "diecut"
-  spec.version		= "0.0.3"
+  spec.version		= "0.0.4"
   author_list = {
     "Judson Lester" => 'nyarly@gmail.com'
   }
   spec.authors		= author_list.keys
   spec.email		= spec.authors.map {|name| author_list[name]}
-  spec.summary		= ""
+  spec.summary		= "Code generation support tools"
   spec.description	= <<-EndDescription
+  Diecut is a tool for supporting the process of writing code generation. It provides
+  linting, a general purpose command line generator, discovery of templated values, and
+  composed generation.
   EndDescription
 
   spec.rubyforge_project= spec.name.downcase
@@ -59,6 +62,7 @@ Gem::Specification.new do |spec|
     spec/linter_spec.rb
     spec/template_set_spec.rb
     spec/configurable_spec.rb
+    spec/stemming_kinds_spec.rb
     spec/cli_spec.rb
   ]
 
