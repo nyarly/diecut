@@ -14,6 +14,8 @@ module Diecut
             @kind
           end
 
+          desc "Generates #{kind} code into a target directory"
+
           mediator.plugins.each do |plugin|
             class_option "with-#{plugin.name}", :default => plugin.default_activated_for(kind)
           end
@@ -60,7 +62,7 @@ module Diecut
     end
 
     class TargetedGenerate < Generate
-      argument :target_dir, :required => true, :type => :string, :banner => "The directory to use as the root of generated output"
+      argument :target_dir, :required => true, :type => :string, :banner => 'TARGET_DIR', :desc => "The directory to use as the root of generated output"
     end
 
     class Lint < KindGroup

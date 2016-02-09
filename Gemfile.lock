@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    diecut (0.0.4)
+    diecut (0.0.5)
       calibrate (~> 0.0.1)
       mustache (~> 1.0)
       paint (~> 0.8)
