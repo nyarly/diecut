@@ -254,3 +254,103 @@ be sure the files would get into the right place.
 
 Setting `default_off` lets us say that this plugin isn't on by default for a
 particular kind, even though it's on for most kinds.
+
+### Custom Application
+
+Diecut leans on Thor to provide its own command line interface, and to provide
+quick and easy command lines to client applications. It can be a little
+frustrating to manage more complex interfaces, and there are places where the
+automatically generated help in Thor is a little lacking. If you find that you
+need to build your own interface, in Thor or something else, here's a
+walkthrough of how Diecut provides it's own interface:
+
+*bin/diecut*
+```
+# This is a prerequisite for any Diecut app: it's the step that triggers Diecut
+# to search available gems and load their plugins in.
+Diecut.load_plugins
+
+# Diecut then makes all the kinds discovered for all the plugins available as
+# an array of strings. You might e.g. grep for prefixed kinds if you wanted to
+# limit your app only to particular kinds. Alternatively, if you only want to
+# generate from a fixed list, you can ignore the kinds that were found.
+Diecut.kinds.each do |kind|
+  Diecut::CommandLine.add_kind(kind)
+end
+Diecut::CommandLine.start
+```
+
+Inside the Diecut command line classes (ignoring a bunch of fancy
+metaprogramming drek:
+
+First, how we set up all the plugins and user interface options for Thor:
+```
+# The mediator is responsible for the interaction between the user interface object
+# and the template context.
+mediator = Diecut.mediator(kind)
+
+mediator.plugins.each do |plugin|
+  # Here we're setting a "with-" option for every plugin, with defaults based on how
+  # they're configured
+  class_option "with-#{plugin.name}", :default => plugin.default_activated_for(kind)
+end
+
+# The example UI object is build by the mediator with all plugins 'on', so that we
+# can list everyone's options.
+example_ui = mediator.build_example_ui
+
+# field_names is just a list of all the options requested by all the plugins for the
+# current kind
+example_ui.field_names.each do |field|
+  class_option(field, {
+    # These methods on the example_ui let us set up UI niceties for the command line
+    # A description, required, default value, etc.
+    :desc     => example_ui.description(field) || field,
+    :required => example_ui.required?(field),
+    :default  => example_ui.default_for(field)
+  })
+end
+```
+
+Then, how we use those options to invoke the complete generation
+```
+# This is a Thor thing, used by Thor::Actions to actually create files
+self.destination_root = target_dir
+
+# Diecut::Mill is the driver class for code generation. We give it a kind, and
+# it's ready to spit out files for that class
+mill = Mill.new(self.class.kind)
+
+# This is where we take user input and activate (or deactivate) plugins:
+# #activate_plugins yields all the names of plugins - when the block
+# returns `true` that plugin is active, and `false` inactive
+mill.activate_plugins {|name| options["with-#{name}"] }
+
+# This creates the user interface object which plugins will map options from
+# onto the templating context via their #option calls and #resolves.
+ui = mill.user_interface
+ui_hash = Hash[ options.find_all do |name, value|
+  not value.nil?
+end]
+# Setting the values from a hash is probably the easiest way to get them from
+# a user interface. Calling setters (ui.budgies = 'cute') is also okay.
+ui.from_hash(ui_hash)
+
+# This is where the actual generation takes place. Given the configured ui
+# object, the mill will yield each file's path and contents in turn. You could
+# File.write(path, contents) if you wanted, but Thor gives us some nice features -
+# especially where generation would clobber an existing file.
+mill.churn(ui) do |path, contents|
+  # This is provided by Thor::Actions
+  create_file(path, contents)
+end
+```
+
+Whew. That seems like a lot, but it's pretty much it as far as configuring and 
+running a Diecut app go. Hopefully you can see how you might, for instance, use 
+this to manage user preferences for your app - updating whether plugins default 
+on based on a YAML configuration file, for instance. Or perhaps taking a very 
+complicated code generation process and allowing the user to edit things in a 
+text file before proceeding. Or put a little Sinatra app on the thing and let 
+people use their web browers. All of those things are possible, but in the 
+meantime, the default snippet with Thor works very well indeed.
