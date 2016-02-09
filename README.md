@@ -177,7 +177,18 @@ YourProject::CLI.start
 ```
 
 You can try it out with `bundle exec bin/your-generator` - things like `--help`
-should work, and you should be able to use it to generate code the same way you
+should work:
+```
+⮀ bundle exec bin/your-generator --help
+Usage:
+  your-generator TARGET The directory to use as the root of generated output --an-option=ANOPTION
+
+Options:
+  [--with-your-base=WITH-YOUR-BASE]   # Default: true
+  --an-option=ANOPTION                # Option's description here
+```
+
+and you should be able to use it to generate code the same way you
 can with `diecut your-kind generate` which is pretty neat. Once you release the
 gem, your users should be able to just `your-generator` - the `bundle exec`
 thing has to do with working with local gems.
